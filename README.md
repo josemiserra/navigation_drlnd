@@ -86,7 +86,8 @@ If you want the original material, download the environment from one of the link
 
 ### Instructions
 
-Follow the instructions in `Navigation.ipynb` for training the agent. After the training, in the last part it will run in test mode.
+Follow the instructions in `Navigation.ipynb` for training the agent. One of the cells runs the Banana program, which prompts a window where the agent actions can be observed.
+After the training, the weights of the network are loaded and the agent runs in test mode at normal speed.
 
 ## More info
 Read the report Report.md
