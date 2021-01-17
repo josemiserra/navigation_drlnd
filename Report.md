@@ -93,6 +93,11 @@ The conditions for reproducing this table, as I said, were, 500 episodes, with a
   <tr>
     <td>Double DQN</td>
     <td>eps_start [1.0,0.01], eps_decay=0.992, batch_size = 64, gamma = .99, tau = 1e-3, lr = 5e-4, update=4, arch = 64x64x128</td>
+    <td>14.91+/-0.36</td>
+  </tr>
+    <tr>
+    <td>Dueling DQN</td>
+    <td>-</td>
     <td></td>
   </tr>
 </table>
@@ -144,34 +149,41 @@ The conditions for reproducing this table, as I said, were, 500 episodes, with a
 
 ## Extensions to the original DQN
 
-### Double DQN
+### Double DQN (ref 1)
   Since Q-learning involves bootstrapping — learning estimates from estimates — overestimation can introduce a maximization bias in learning. Using Double DQN the goal is to prevent this maximization bias. Double DQN utilises Double Q-learning to reduce overestimation by decomposing the max operation in the target into action selection and action evaluation. We evaluate the greedy policy according to the online network, but we use the target network to estimate its value.
 
-  The implementation of DDQN  required a simple modification in the update of the loss function. As expected, we do not improve the reward gain, even we reduce the estimation (), towards is likely to be a better estimate of the real reward of the policy.
+  The implementation of DDQN  required a simple modification in the update of the loss function.
 
+### Dueling DQN (ref 2)
+  In Dueling Network we modify the original Q-Network so it has two streams to separately estimate the state-value and the advantages for each action. Both streams share a common convolutional feature learning module at the beginning, with 2 fully convolutional layers for it. Then, they split in the so called Value network stream and Advantage network stream. The two streams are combined to produce an estimate of the state-action value function Q, where Q = V(s) + (A - mean(A)), being A the output of the advantage network and V(s) the output of the value network. The reason for computing the difference with the average of the advantage network is to increase the stability of the optimization (instead of the maximum, for example). 
 
-
-### Prioritized experience replay
+### Prioritized experience replay (ref 3)
 
 Two episodes have approx. a score of 0.0. Implementing prioritized experience replay could help maximize the training from those bad examples
 Experience replay is a mechanism introduced in [2] and it consists of Learning from past stored experiences during replay sessions. Basically, we remember our experiences in memory (called a replay buffer) and learn from them later. This allows us to make more efficient use of past experiences by not throwing away samples right away, and it also helps to break one type of correlations: sequential correlations between experiences.
 
 
-### Double DQN
+### Conclusion for extensions.
+  The extensions developed were able to boost the final value obtained, which means they obtained an agent with a better policy. As a human player, in my best game I obtained a value of xx, that is why, is surprising how well the agent can works. Additionally, training for 500 episodes did not take more than a few minutes. 
+  There are still a few extensions would have been nice to add, which due to a lack time, must be left for another time. Those extensions imply to implement the full rainbow DQN implementation, adding Noisy DQN, Multi-stepped bootstrap targest and Distributional DQNs. 
+  
 
-### Dueling DQN
+<figure>
+<img src="images/DQN5000_final.png" alt="drawing" style="width:400px;" caption="f"/>
+<figcaption><i>Figure 1. Evolution of rewards (score) during 5000 episodes for the final implementation. The red line is the moving average over the last 100 episodes, which after 1000 episodes reaches the average value of 16.11.</i></figcaption>
+ </figure>
 
 
 ## Contact
 
 Jose Miguel Serra Lleti - serrajosemi@gmail.com
 
-Project Link: [https://github.com/your_username/repo_name](https://github.com/your_username/repo_name)
+Project Link: [https://github.com/josemiserra/navigation_drlnd](https://github.com/josemiserra/navigation_drlnd)
 
 
 ## References
 *(1) [Deep Reinforcement Learning with Double Q-learning](https://arxiv.org/abs/1509.06461v3)
-
+*(2) [Dueling DQN](https://arxiv.org/abs/1511.06581)
 
 
 
