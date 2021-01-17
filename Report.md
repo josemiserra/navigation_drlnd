@@ -96,7 +96,13 @@ The conditions for reproducing this table, as I said, were, 500 episodes, with a
     <td>14.91+/-0.36</td>
   </tr>
     <tr>
-    <td>Dueling DQN</td>
+    <td>DoubleDQN+Dueling DQN</td>
+    <td>-</td>
+    <td>14.3+/-0.6</td>
+  </tr>
+  </tr>
+    <tr>
+    <td>DoubleDQN+Dueling DQN+Prioritized Experience Replay</td>
     <td>-</td>
     <td></td>
   </tr>
