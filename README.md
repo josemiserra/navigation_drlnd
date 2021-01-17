@@ -146,6 +146,16 @@ See the [open issues](https://github.com/othneildrew/Best-README-Template/issues
    ```
 
 
+Install Unity ml-agents.
+
+git clone https://github.com/Unity-Technologies/ml-agents.git
+git -C ml-agents checkout 0.4.0b
+pip install ml-agents/python/.
+Install the project requirements.
+
+pip install -r requirements.txt
+
+
 
 <!-- CONTRIBUTING -->
 ## Contributing

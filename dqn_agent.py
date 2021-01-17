@@ -9,10 +9,10 @@ import torch.nn.functional as F
 import torch.optim as optim
 
 BUFFER_SIZE = int(1e5)  # replay buffer size
-BATCH_SIZE = 128        # minibatch size
-GAMMA = 0.95            # discount factor
+BATCH_SIZE = 64       # minibatch size
+GAMMA = 0.99          # discount factor
 TAU = 1e-3              # for soft update of target parameters
-LR = 1e-3               # learning rate 
+LR = 5e-4              # learning rate 
 UPDATE_EVERY = 4        # how often to update the network
 
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
@@ -76,6 +76,7 @@ class Agent():
             return np.argmax(action_values.cpu().data.numpy())
         else:
             return random.choice(np.arange(self.action_size))
+            
 
     def learn(self, experiences, gamma):
         """Update value parameters using given batch of experience tuples.
@@ -87,8 +88,12 @@ class Agent():
         """
         states, actions, rewards, next_states, dones = experiences
 
+        ## Double DQN 
+        #use qnetwork_local to find the best action. In function max, 0 returns value, 1 returns index
+        best_actions_ind = self.qnetwork_local(next_states).detach().max(1)[1].unsqueeze(1)
         # Get max predicted Q values (for next states) from target model
-        Q_targets_next = self.qnetwork_target(next_states).detach().max(1)[0].unsqueeze(1)
+        Q_targets_next = self.qnetwork_target(next_states).gather(1,best_actions_ind)
+        
         # Compute Q targets for current states 
         Q_targets = rewards + (gamma * Q_targets_next * (1 - dones))
 
@@ -97,13 +102,18 @@ class Agent():
 
         # Compute loss
         loss = F.mse_loss(Q_expected, Q_targets)
+
+        # clamp btwn -1..1
+        #delta = torch.clamp(td_targets-torch.gather(self.q_network(states), 1, actions), -1., 1.)
+        
         # Minimize the loss
         self.optimizer.zero_grad()
         loss.backward()
         self.optimizer.step()
 
         # ------------------- update target network ------------------- #
-        self.soft_update(self.qnetwork_local, self.qnetwork_target, TAU)                     
+        self.soft_update(self.qnetwork_local, self.qnetwork_target, TAU)  
+
 
     def soft_update(self, local_model, target_model, tau):
         """Soft update model parameters.
