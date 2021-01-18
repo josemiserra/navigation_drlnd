@@ -49,7 +49,7 @@ if __name__ == "__main__":
 
     print('States have length:', state_size)
 
-    scores, epsi = testFunction()
+    testFunction()
 
 
 

@@ -6,7 +6,7 @@ from dqn_agent import Agent
 
 
 def trainFunction(n_episodes=2000, max_t=1000, eps_start=1.0, eps_end=0.01, eps_decay=0.995):
-    agent = Agent(state_size=37, action_size=4, seed=0, priority=False)
+    agent = Agent(state_size=37, action_size=4, seed=0, priority=True)
     epsilons = []
     scores = []  # list containing scores from each episode
     scores_window = deque(maxlen=100)  # last 100 scores

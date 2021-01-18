@@ -179,7 +179,7 @@ The conditions for reproducing this table, as I said, were, 500 episodes, with a
 
 
 <figure>
-<img src="images/DQN5000.png" alt="drawing" style="width:400px;" caption="f"/>
+<img src="images/DQN5000.png" alt="drawing" style="width:400px;"/>
 <figcaption><i>Figure 1. Evolution of rewards (score) during 5000 episodes. The red line is the moving average over the last 100 episodes, which after 1000 episodes reaches the average reward value of 16.11.</i></figcaption>
  </figure>
 
@@ -195,14 +195,27 @@ The conditions for reproducing this table, as I said, were, 500 episodes, with a
 
 ### Prioritized experience replay (ref 3)
 
-Two episodes have approx. a score of 0.0. Implementing prioritized experience replay could help maximize the training from those bad examples
-Experience replay is a mechanism introduced in [2] and it consists of Learning from past stored experiences during replay sessions. Basically, we remember our experiences in memory (called a replay buffer) and learn from them later. This allows us to make more efficient use of past experiences by not throwing away samples right away, and it also helps to break one type of correlations: sequential correlations between experiences.
+Experience replay is a mechanism introduced in (1) which consists of Learning from past stored experiences during replay sessions. Basically, we remember our experiences in memory (called a replay buffer) and learn from them later. This allows us to make more efficient use of past experiences by not throwing away samples right away, and it also helps to break one type of correlations: sequential correlations between experiences.
+
+In prioritized experience replay (PER) when we sample experiences to feed the Neural Network, we assume that some experiences are more valuable than others. In a uniform sampling DQN, all the experiences have the same probability to be sampled. As a result, every experience will be used about the same number of times at the end of the training. However, doing a weighted sampling, samples more benetifial, get pulled more often. 
+
+The publication (3) tells us to compute a sampling probability proportional to the temporal difference error (the loss of the forward pass from the neural network). In this way we will repeat more often the experiences that made the neural network learn a lot.
+
+Additionally, since we have a weighted distribution, we have to apply important sampling. One important parameter is the beta term in the exponent, which controls how much prioritization to apply. Since training is highly unstable at the beginning, importance sampling corrections will matter towards the end of training. Thus, beta starts small (values of 0.4 to 0.6 are commonly used) and anneals towards one. At the value of 1, the sampling will be completely weighted.
+Since the episodes are short (300 steps at maximum), and the memory buffer was quite large, we only used a beta smaller than 1.0 for the first 200 episodes. 
+
+One of the drawbacks observed with PER is that the benefits are seen only gradually after many episodes. Since the buffer of replays is usually enormous (100.000 entries), the weighting of the probabilities starts to play a role only after many episodes have already happened and transitions have been repeated several times. 
+
+As a final comment, in the Rainbow DQN paper it was shown that prioritization was an important extension for obtaining high scores on Atari games. The implementation here done was based on [the OpenAI one](https://github.com/openai/baselines/blob/master/baselines/deepq/replay_buffer.py).
 
 
-### Conclusion for extensions.
+
+### Conclusion for extensions and future improvements
   The extensions developed were able to boost the final value obtained, which means they obtained an agent with a better policy. As a human player, in my best game I obtained a value of xx, that is why, is surprising how well the agent can works. Additionally, training for 500 episodes did not take more than a few minutes. 
-  There are still a few extensions would have been nice to add, which due to a lack time, must be left for another time. Those extensions imply to implement the full rainbow DQN implementation, adding Noisy DQN, Multi-stepped bootstrap targest and Distributional DQNs. 
-  
+  There are still a few extensions would have been nice to add. Those extensions would imply to implement the Rainbow DQN (5). In addition, we used the state based on features and we did not use the implementation that is taking the input frames as state, like in the Atari DQN paper. 
+
+
+
 
 <figure>
 <img src="images/DQN5000_final.png" alt="drawing" style="width:400px;" caption="f"/>
@@ -222,5 +235,6 @@ Project Link: [https://github.com/josemiserra/navigation_drlnd](https://github.c
 * (2) [Dueling DQN](https://arxiv.org/abs/1511.06581)
 * (3) [Prioritized Experience Relay](https://arxiv.org/pdf/1511.05952.pdf)
 * (4) [Atari DQN](https://arxiv.org/abs/1312.5602)
+* (5) [Rainbow](https://arxiv.org/abs/1710.02298)
 
 
