@@ -49,8 +49,8 @@ class Agent():
         self.t_step = 0
         self.frame_step = 0
 
-        self.beta_start = 0.4
-        self.beta_episodes = 200
+        self.beta_start = beta_start
+        self.beta_episodes = beta_episodes
     
     def step(self, state, action, reward, next_state, done):
         # Save experience in replay memory
@@ -70,6 +70,7 @@ class Agent():
             self.frame_step += 1
 
     def act(self, state, eps=0.):
+
         """Returns actions for given state as per current policy.
         
         Params
