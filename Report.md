@@ -27,7 +27,7 @@
 
 ## About The Project
 
- In this project an agent in trained to collect bananas in a 3D world. The bananas are dispersed over a long plane and falling from the sky. Once they fall they become static in their position.
+ In this project an agent is trained to collect bananas in a 3D world. The bananas are dispersed over a long plane and falling from the sky. Once they fall they become static in their position.
   To see details about the states, actions and rewards, have a look at the README. 
  
  The main idea is to use the DQN algorithm to train the agent (1), originally used by the DeepMind group to train Atari games.
@@ -39,33 +39,34 @@
  
 Here is the algorithm in a nutshell, as explained in the methods of (1):
 ```
-initialize replay memory D
-initialize C to when update networks
+initialize replay memory 
+initialize C = 4, or positive integer to indicate when update networks
 initialize action-value functions Q_target and Q_local with random weights
 for episode in num_episodes
-    for time_step t=1 until T 
+    for time_step t=1 until T (end of episode) 
         select an action a
             with probability ε select a random action
             otherwise select a = argmax_a’ Q(s,a’)
-        execute action a
+        execute action a in environment
         observe reward r and new state s’
-        store experience (s, a, r, s’) in replay memory D
-
-        sample random transitions (sn, an, rn, sn’) from replay memory D
+        store experience (s, a, r, s’) in replay memory 
+        sample random transitions (sn, an, rn, sn’) from replay memory 
         calculate target for each minibatch transition
         if sn’ is terminal state then targets = rn
-        otherwise targets = rn + γ max_a’ Q_target(sn’, an’)
+        otherwise targets = rn + γ * max_a’ Q_target(sn’, an’)
         local = Q_local(sn,an)
-        train the Q network using (targets - local)^2 as loss
+        calculate loss (targets - local)^2 
+        Upgrade gradient based on loss
         s = s'
         if t%C == 0 update Q_target(weights)= Q_local(weights) 
+    endfor
+endfor
 ```
 
 
 ## Variation of parameters on basis DQN 
 
-First, we adapted the LunarLander-v2 agent and model from the  [DQN lesson at Udacity](https://youtu.be/MqTXoCxQ_eY).
-The files can be downloaded from the  [RL nanodegree repository](https://github.com/udacity/deep-reinforcement-learning/tree/master/dqn).
+First, we adapted the LunarLander-v2 agent and model from the  [DQN lesson at Udacity](https://youtu.be/MqTXoCxQ_eY).The files can be downloaded from the  [RL nanodegree repository](https://github.com/udacity/deep-reinforcement-learning/tree/master/dqn).
 
 The adaptation requires simply to change the OpenAI Gym environment by the Unity ML environment and adapt some of the parameters. The goal now is to achieve a value more than 13 as an average of the last 100 episodes, in less than 1800 episodes.
 
@@ -133,7 +134,7 @@ The conditions for reproducing this table, as I said, were, 500 episodes, with a
   </tr>
     <tr>
     <td>DoubleDQN+Dueling DQN+Prioritized Experience Replay</td>
-    <td>-</td>
+    <td>12.5+/-1.16</td>
     <td></td>
   </tr>
 </table>
@@ -172,7 +173,7 @@ The conditions for reproducing this table, as I said, were, 500 episodes, with a
 
 #### Soft update and Update every
   The tau from soft update mission is to guide the secondary theta. In our case, it can be observed that converges very well, so the default remained.
-  If we change Update rate, less than 4 defeats the purpose of having to theta values (the update is too often), and more than that  drastically reduced the learning speed (9.15+/-0.43 for updating every 10)
+  If we change Update rate, less than 4 defeats the purpose of having to theta values (the update is too often), and more than that  drastically reduced the learning speed (9.15+/-0.43 for updating every 10).
 
 #### Conclusion for Parameter changing
   Even if a grid search of parameters was not done, an exploration of several of the parameters was carried out with the purpose to increase the learning speed. With the new parameters, and without limit of episodes, we achieved a maximum average reward of 17.61 (See figure 3).
@@ -180,7 +181,7 @@ The conditions for reproducing this table, as I said, were, 500 episodes, with a
 
 <figure>
 <img src="images/DQN5000.png" alt="drawing" style="width:400px;"/>
-<figcaption><i>Figure 1. Evolution of rewards (score) during 5000 episodes. The red line is the moving average over the last 100 episodes, which after 1000 episodes reaches the average reward value of 16.11.</i></figcaption>
+<figcaption><i>Figure 3. Evolution of rewards (score) during 5000 episodes. The red line is the moving average over the last 100 episodes, which after 1000 episodes reaches the average reward value of 16.11.</i></figcaption>
  </figure>
 
 ## Extensions to the original DQN
@@ -211,16 +212,23 @@ As a final comment, in the Rainbow DQN paper it was shown that prioritization wa
 
 
 ### Conclusion for extensions and future improvements
-  The extensions developed were able to boost the final value obtained, which means they obtained an agent with a better policy. As a human player, in my best game I obtained a value of xx, that is why, is surprising how well the agent can works. Additionally, training for 500 episodes did not take more than a few minutes. 
-  There are still a few extensions would have been nice to add. Those extensions would imply to implement the Rainbow DQN (5). In addition, we used the state based on features and we did not use the implementation that is taking the input frames as state, like in the Atari DQN paper. 
+  The extensions developed were able to boost the final value obtained, but not so much. It is possible that the policy obtained initially was already very good and the problem does not present a challenge anymore (with a limit of just 300 steps per episode), so the room for improvement is likely to be very low. Watching how it acts in the test execution with the vanilla DQN is already very surprising : it drives almost perfectly over all the good bananas! Thus, is not surprising that the average did not improve much after all the new extensions of the algorithms. 
+  
+  It is worth to observe that the extensions accelerated the convergence to a value function with high values of reward, especially using DoubleDQN. 
 
-
-
-
-<figure>
+  <figure>
 <img src="images/DQN5000_final.png" alt="drawing" style="width:400px;" caption="f"/>
-<figcaption><i>Figure 1. Evolution of rewards (score) during 5000 episodes for the final implementation. The red line is the moving average over the last 100 episodes, which after 1000 episodes reaches the average value of 16.11.</i></figcaption>
+<figcaption><i>Figure 4. Evolution of rewards (score) during 5000 episodes for the final implementation. The red line is the moving average over the last 100 episodes, which after 1000 episodes reaches the average value of 16.11.</i></figcaption>
  </figure>
+  
+  In computational time, training for 500 episodes did not take more than 10 minutes. The PER implementation was the slowest (about half an hour for 500 episodes), probably due the extra float operations performed for computing the weights and the updates of the replay memory buffer. In the OpenAI implementation, they speed up this process using a special data structure called SumTree (this [link](https://adventuresinmachinelearning.com/sumtree-introduction-python/) explains how it works)
+
+  Finally, there are still a few extensions would have been nice to add. Those extensions would imply to implement the Rainbow DQN (5). In addition, we used the state based on features and we did not use the implementation that is taking the input frames as state, like in the Atari DQN paper. 
+
+
+
+
+
 
 
 ## Contact
