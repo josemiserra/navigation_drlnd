@@ -7,9 +7,6 @@
   <ol>
     <li>
       <a href="#about-the-project">About The Project</a>
-      <ul>
-        <li><a href="#">Built With</a></li>
-      </ul>
     </li>
     <li>
       <a href="#parameter-modified">Parameters modified</a>
@@ -30,6 +27,39 @@
 
 ## About The Project
 
+ In this project an agent in trained to collect bananas in a 3D world. The bananas are dispersed over a long plane and falling from the sky. Once they fall they become static in their position.
+  To see details about the states, actions and rewards, have a look at the README. 
+ 
+ The main idea is to use the DQN algorithm to train the agent (1), originally used by the DeepMind group to train Atari games.
+ 
+ The DQN algorithm is the Q-learning algorithm, but with 3 main differences:
+ * The table used to store the values of the q-value function is replaced by a neural network (with a series of linear layers followed by a relu as activation function)
+ * Experience replay is used, where we fill a buffer with small trajectories (sequences state,action) which are replayed during training
+ * Fixed targeting, where two functions are used to evaluate the progress, one used as a goal and the other for storing local changes. The goal function is updated every N episodes from the local function, which smooths out the way the function learns.
+ 
+Here is the algorithm in a nutshell, as explained in the methods of (1):
+```
+initialize replay memory D
+initialize C to when update networks
+initialize action-value functions Q_target and Q_local with random weights
+for episode in num_episodes
+    for time_step t=1 until T 
+        select an action a
+            with probability ε select a random action
+            otherwise select a = argmax_a’ Q(s,a’)
+        execute action a
+        observe reward r and new state s’
+        store experience (s, a, r, s’) in replay memory D
+
+        sample random transitions (sn, an, rn, sn’) from replay memory D
+        calculate target for each minibatch transition
+        if sn’ is terminal state then targets = rn
+        otherwise targets = rn + γ max_a’ Q_target(sn’, an’)
+        local = Q_local(sn,an)
+        train the Q network using (targets - local)^2 as loss
+        s = s'
+        if t%C == 0 update Q_target(weights)= Q_local(weights) 
+```
 
 
 ## Variation of parameters on basis DQN 
@@ -188,8 +218,9 @@ Project Link: [https://github.com/josemiserra/navigation_drlnd](https://github.c
 
 
 ## References
-*(1) [Deep Reinforcement Learning with Double Q-learning](https://arxiv.org/abs/1509.06461v3)
-*(2) [Dueling DQN](https://arxiv.org/abs/1511.06581)
-
+* (1) [Deep Reinforcement Learning with Double Q-learning](https://arxiv.org/abs/1509.06461v3)
+* (2) [Dueling DQN](https://arxiv.org/abs/1511.06581)
+* (3) [Prioritized Experience Relay](https://arxiv.org/pdf/1511.05952.pdf)
+* (4) [Atari DQN](https://arxiv.org/abs/1312.5602)
 
 

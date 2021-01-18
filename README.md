@@ -29,9 +29,7 @@
 
 ### Introduction
 
-For this project, you will train an agent to navigate (and collect bananas!) in a large, square world.  
-
-The environment is a simplified version of the Banana Collector Environment from the Unity ML-Agents toolkit provided by Udacity. 
+For this project, an agent is trained to navigate and collect bananas inside a cubic world. The environment is a simplified version of the Banana Collector Environment from the Unity ML-Agents toolkit provided by Udacity. 
 
 A single agent that can move in a planar arena, with observations given by a set of distance-based sensors and some intrinsic measurements, and actions consisting of 4 discrete commands (forward, backward, left, right).
 
@@ -71,7 +69,7 @@ The task is episodic, with a maximum of 300 steps per episode, and in order to s
    ```
 5. move into the folder of the project, and run jupyter.
    ```sh
-  jupyter notebook
+    cd jupyter notebook
    ```
 
 If you want the original material, download the environment from one of the links below.  You need only select the environment that matches your operating system:
