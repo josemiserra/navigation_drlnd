@@ -46,7 +46,7 @@ class Agent():
         # Initialize time step (for updating every UPDATE_EVERY steps)
         self.t_step = 0
         self.frame_step = 0
-        self.is_priority = True
+        self.is_priority = priority
         self.beta_start = 0.4
         self.beta_episodes = 400
     
