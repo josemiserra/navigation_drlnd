@@ -8,19 +8,30 @@
     <li>
       <a href="#about-the-project">About The Project</a>
     </li>
+    <li><a href="#vanilla-dqn">Vanilla DQN</a></li>
     <li>
-      <a href="#parameter-modified">Parameters modified</a>
+      <a href="#parameter-exploration">Parameter exploration</a>
       <ul>
-        <li><a href="#prerequisites">Epsilon</a></li>
-        <li><a href="#installation">Installation</a></li>
+        <li><a href="#network-architecture">Network architecture</a></li>
+        <li><a href="#epsilon-limits">Epsilon limits</a></li>
+        <li><a href="#gamma">Gamma</a></li>
+        <li><a href="#batch-size">Batch size</a></li>
+        <li><a href="#learning-rate">Learning rate</a></li>
+        <li><a href="#soft-update">Soft update</a></li>
+        <li><a href="#conclusion-for-parameter-exploration">Conclusion for parameter exploration</a></li>
       </ul>
     </li>
-    <li><a href="#usage">Usage</a></li>
-    <li><a href="#roadmap">Roadmap</a></li>
-    <li><a href="#epsilon-limits">Epsilon limits</a></li>
-    <li><a href="#license">License</a></li>
-    <li><a href="#contact">Contact</a></li>
+    <li><a href="#extensions-to-the-vanilla-dqn">Extensions to the vanilla DQN</a>
+    <ul>
+        <li><a href="#double-dqn">Double DQN</a></li>
+        <li><a href="#dueling-dqn">Dueling DQN</a></li>
+        <li><a href="#prioritized-experience-replay">Prioritized experience replay</a></li>
+        <li><a href="#conclusion-and-future-improvements">Conclusion and future improvements
+        </ul>
+    </li>
     <li><a href="#acknowledgements">Acknowledgements</a></li>
+    <li><a href="#contact">Contact</a></li>
+    <li><a href="#references">References</a></li>
   </ol>
 </details>
 
@@ -64,7 +75,7 @@ endfor
 ```
 
 
-## Variation of parameters on basis DQN 
+## Vanilla DQN 
 
 First, we adapted the LunarLander-v2 agent and model from the  [DQN lesson at Udacity](https://youtu.be/MqTXoCxQ_eY).The files can be downloaded from the  [RL nanodegree repository](https://github.com/udacity/deep-reinforcement-learning/tree/master/dqn).
 
@@ -85,7 +96,7 @@ We are going to consider both metrics. But playing with multiple metrics is diff
 
 In the following table a list with all parameters tested and its values is presented. Each parameter was modified and the environment run 3 times. It is important to have an idea about how much variance we get. Running the experiment one time would be fatal (we could just get lucky), that is why 3 times is an acceptable heuristic to decide if a change of parameter is good or not. In an real experimental scenario, we would repeat each run 30 times to get enough statistical power and be confident of the values of our variance, but at the moment, we are doing an exploration of the parameters space. 
 
-The conditions for reproducing this table, as I said, were, 500 episodes, with a maximum of 300 steps per episode, 3 repetitions in total.  Parameters are:
+The conditions for reproducing this table, were 500 episodes with a maximum of 300 steps per episode, 3 repetitions in total.  Parameters are:
 -  _eps_ is the epsilon of the eps-greedy function (limits of start and end, 1.0 being total exploration, 0.0 fixed policy)
 -  _eps\_decay_ is the decay rate for eps following the formula eps = max(0.01, eps*eps_decay), i.e., exponential decay   
 - _Gamma_, discount rate for the reward, how many episodes we will remember
@@ -107,39 +118,39 @@ The conditions for reproducing this table, as I said, were, 500 episodes, with a
   </tr>
   <tr>
     <th>Architecture change</th>
-    <td>64x64x128 </td>
+    <td>same as vanilla DQN,64x64x128 </td>
     <td>13.34+/-0.03</td>
   </tr>
   <tr>
   <tr>
-    <th>Epsilon Decay I</th>
-    <td>eps_decay=0.992</td>
+    <th>Epsilon Decay </th>
+    <td>same as Architecture change,eps_decay=0.992</td>
     <td>14.45+/-0.4</td>
   </tr>
   <tr>
-    <td>Gamma decreased</td>
-    <td>gamma = 0.95</td>
+    <th>Gamma decreased</th>
+    <td>same as Epsilon Decay,gamma = 0.95</td>
     <td>14+/-0.75</td>
   </tr>
   <tr>
-    <td>Double DQN</td>
+    <th>Double DQN</td>
     <td>eps_start [1.0,0.01], eps_decay=0.992, batch_size = 64, gamma = .99, tau = 1e-3, lr = 5e-4, update=4, arch = 64x64x128</td>
     <td>14.91+/-0.36</td>
   </tr>
     <tr>
-    <td>DoubleDQN+Dueling DQN</td>
-    <td>-</td>
+    <th>DoubleDQN+Dueling DQN</th>
+    <td>same as Double DQN</td>
     <td>14.3+/-0.6</td>
   </tr>
   </tr>
     <tr>
-    <td>DoubleDQN+Dueling DQN+Prioritized Experience Replay</td>
+    <th>DoubleDQN+Dueling DQN+Prioritized Experience Replay</th>
+    <td>same as Double DQN</td>
     <td>12.5+/-1.16</td>
-    <td></td>
   </tr>
 </table>
 
-### Comments to parameter changing
+## Parameter exploration
 #### Network architecture
   The weights of the network are randomly initialized (it uses a random uniform distribution of mean 0 and variance close to 1, aka [He initialization] (https://arxiv.org/pdf/1502.01852.pdf).
 
@@ -171,11 +182,11 @@ The conditions for reproducing this table, as I said, were, 500 episodes, with a
 #### Learning rate
   Learning rates are usually tested in a sequences of potencies. We tested 1e-2 (0.02+/-0.1, no learning), 1e-3 (13.29+/-0.63), 1e-4 (default) and 1e-5 (9.38+/-0.37, gradient descent during learning is more stable, but also slower). 
 
-#### Soft update and Update every
+#### Soft update
   The tau from soft update mission is to guide the secondary theta. In our case, it can be observed that converges very well, so the default remained.
   If we change Update rate, less than 4 defeats the purpose of having to theta values (the update is too often), and more than that  drastically reduced the learning speed (9.15+/-0.43 for updating every 10).
 
-#### Conclusion for Parameter changing
+#### Conclusion for parameter exploration
   Even if a grid search of parameters was not done, an exploration of several of the parameters was carried out with the purpose to increase the learning speed. With the new parameters, and without limit of episodes, we achieved a maximum average reward of 17.61 (See figure 3).
 
 
@@ -184,21 +195,21 @@ The conditions for reproducing this table, as I said, were, 500 episodes, with a
 <figcaption><i>Figure 3. Evolution of rewards (score) during 5000 episodes. The red line is the moving average over the last 100 episodes, which after 1000 episodes reaches the average reward value of 16.11.</i></figcaption>
  </figure>
 
-## Extensions to the original DQN
+## Extensions to the vanilla DQN
 
-### Double DQN (ref 1)
-  Since Q-learning involves bootstrapping — learning estimates from estimates — overestimation can introduce a maximization bias in learning. Using Double DQN the goal is to prevent this maximization bias. Double DQN utilises Double Q-learning to reduce overestimation by decomposing the max operation in the target into action selection and action evaluation. We evaluate the greedy policy according to the online network, but we use the target network to estimate its value.
+### Double DQN
+  Since Q-learning involves bootstrapping — learning estimates from estimates — overestimation can introduce a maximization bias in learning. Using Double DQN (1) the goal is to prevent this maximization bias. Double DQN utilises Double Q-learning to reduce overestimation by decomposing the max operation in the target into action selection and action evaluation. We evaluate the greedy policy according to the online network, but we use the target network to estimate its value.
 
   The implementation of DDQN  required a simple modification in the update of the loss function.
 
-### Dueling DQN (ref 2)
-  In Dueling Network we modify the original Q-Network so it has two streams to separately estimate the state-value and the advantages for each action. Both streams share a common convolutional feature learning module at the beginning, with 2 fully convolutional layers for it. Then, they split in the so called Value network stream and Advantage network stream. The two streams are combined to produce an estimate of the state-action value function Q, where Q = V(s) + (A - mean(A)), being A the output of the advantage network and V(s) the output of the value network. The reason for computing the difference with the average of the advantage network is to increase the stability of the optimization (instead of the maximum, for example). 
+### Dueling DQN
+  In Dueling Network (2) we modify the original Q-Network so it has two streams to separately estimate the state-value and the advantages for each action. Both streams share a common convolutional feature learning module at the beginning, with 2 fully convolutional layers for it. Then, they split in the so called Value network stream and Advantage network stream. The two streams are combined to produce an estimate of the state-action value function Q, where Q = V(s) + (A - mean(A)), being A the output of the advantage network and V(s) the output of the value network. The reason for computing the difference with the average of the advantage network is to increase the stability of the optimization (instead of the maximum, for example). 
 
-### Prioritized experience replay (ref 3)
+### Prioritized experience replay
 
 Experience replay is a mechanism introduced in (1) which consists of Learning from past stored experiences during replay sessions. Basically, we remember our experiences in memory (called a replay buffer) and learn from them later. This allows us to make more efficient use of past experiences by not throwing away samples right away, and it also helps to break one type of correlations: sequential correlations between experiences.
 
-In prioritized experience replay (PER) when we sample experiences to feed the Neural Network, we assume that some experiences are more valuable than others. In a uniform sampling DQN, all the experiences have the same probability to be sampled. As a result, every experience will be used about the same number of times at the end of the training. However, doing a weighted sampling, samples more benetifial, get pulled more often. 
+In prioritized experience replay (PER) (3) when we sample experiences to feed the Neural Network, we assume that some experiences are more valuable than others. In a uniform sampling DQN, all the experiences have the same probability to be sampled. As a result, every experience will be used about the same number of times at the end of the training. However, doing a weighted sampling, samples more benetifial, get pulled more often. 
 
 The publication (3) tells us to compute a sampling probability proportional to the temporal difference error (the loss of the forward pass from the neural network). In this way we will repeat more often the experiences that made the neural network learn a lot.
 
@@ -211,25 +222,23 @@ As a final comment, in the Rainbow DQN paper it was shown that prioritization wa
 
 
 
-### Conclusion for extensions and future improvements
+### Conclusion and future improvements
   The extensions developed were able to boost the final value obtained, but not so much. It is possible that the policy obtained initially was already very good and the problem does not present a challenge anymore (with a limit of just 300 steps per episode), so the room for improvement is likely to be very low. Watching how it acts in the test execution with the vanilla DQN is already very surprising : it drives almost perfectly over all the good bananas! Thus, is not surprising that the average did not improve much after all the new extensions of the algorithms. 
   
   It is worth to observe that the extensions accelerated the convergence to a value function with high values of reward, especially using DoubleDQN. 
 
   <figure>
-<img src="images/DQN5000_final.png" alt="drawing" style="width:400px;" caption="f"/>
-<figcaption><i>Figure 4. Evolution of rewards (score) during 5000 episodes for the final implementation. The red line is the moving average over the last 100 episodes, which after 1000 episodes reaches the average value of 16.11.</i></figcaption>
+<img src="images/DQN5000Final.png" alt="drawing" style="width:400px;" caption="f"/>
+<figcaption><i>Figure 4. Evolution of rewards (score) during 5000 episodes for the final implementation with all the extensions. The red line is the moving average over the last 100 episodes, which after 1000 episodes reaches the average value of 15.68, with a maximum of 17.19.</i></figcaption>
  </figure>
   
-  In computational time, training for 500 episodes did not take more than 10 minutes. The PER implementation was the slowest (about half an hour for 500 episodes), probably due the extra float operations performed for computing the weights and the updates of the replay memory buffer. In the OpenAI implementation, they speed up this process using a special data structure called SumTree (this [link](https://adventuresinmachinelearning.com/sumtree-introduction-python/) explains how it works)
+  In computational time, training for 500 episodes did not take more than 10 minutes. The PER implementation was the slowest (about half an hour for 500 episodes), probably due the extra float operations performed for computing the weights and the updates of the replay memory buffer. In the OpenAI implementation, they speed up this process using a special data structure called SumTree (this [link](https://adventuresinmachinelearning.com/sumtree-introduction-python/) explains how it works).
 
   Finally, there are still a few extensions would have been nice to add. Those extensions would imply to implement the Rainbow DQN (5). In addition, we used the state based on features and we did not use the implementation that is taking the input frames as state, like in the Atari DQN paper. 
 
+## Acknowlegments
 
-
-
-
-
+The repository https://github.com/higgsfield/RL-Adventure was very helpful during the implementation of the extensions.
 
 ## Contact
 
